@@ -5,7 +5,6 @@
 #include "sherpa-onnx/python/csrc/speaker-engine.h"
 
 #include <vector>
-#include <iostream>
 
 #include "sherpa-onnx/csrc/speaker-engine.h"
 
@@ -23,12 +22,9 @@ void PybindSpeakerEngine(py::module *m) {
          [](PyClass &self, int sampling_rate, py::array_t<float> samples) {
              std::vector<float> embed;
              self.ExtractEmbedding(sampling_rate, samples.data(), samples.size(), &embed);
-             for (int i = 0; i < 256; i++) {
-                  std::cout << embed[i] << std::endl;
-             }
-             auto result = py::array_t<float>(256);
+             auto result = py::array_t<float>(embed.size());
              py::buffer_info buf = result.request();
-             memcpy(buf.ptr, embed.data(), 256 * sizeof(float));
+             memcpy(buf.ptr, embed.data(), embed.size() * sizeof(float));
              return result;
           }, 
           py::arg("sampling_rate"),

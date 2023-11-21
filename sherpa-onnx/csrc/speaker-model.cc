@@ -17,7 +17,6 @@
 #include "speaker-model.h"
 #include "onnx-utils.h"
 #include "log.h"
-#include <iostream>
 
 namespace sherpa_onnx {
 
@@ -81,7 +80,6 @@ void SpeakerModel::ExtractEmbedding(
 
   embed->reserve(type_info.GetElementCount());
   for (size_t i = 0; i < type_info.GetElementCount(); ++i) {
-    std::cout << "!!! " << outputs[i] << std::endl;
     embed->emplace_back(outputs[i]);
   }
 }
