@@ -28,6 +28,7 @@ pybind11_add_module(_sherpa_onnx
   online-transducer-model-config.cc
   online-wenet-ctc-model-config.cc
   sherpa-onnx.cc
+  speaker-engine.cc
   silero-vad-model-config.cc
   vad-model-config.cc
   vad-model.cc

@@ -9,6 +9,7 @@ from _sherpa_onnx import (
     OnlineStream,
     SileroVadModelConfig,
     SpeechSegment,
+    SpeakerEngine,
     VadModel,
     VadModelConfig,
     VoiceActivityDetector,

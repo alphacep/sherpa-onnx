@@ -80,6 +80,8 @@ set(sources
   silero-vad-model-config.cc
   silero-vad-model.cc
   slice.cc
+  speaker-engine.cc
+  speaker-model.cc
   stack.cc
   symbol-table.cc
   text-utils.cc

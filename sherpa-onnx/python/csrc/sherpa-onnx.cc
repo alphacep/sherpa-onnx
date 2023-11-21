@@ -20,6 +20,7 @@
 #include "sherpa-onnx/python/csrc/online-stream.h"
 #include "sherpa-onnx/python/csrc/vad-model-config.h"
 #include "sherpa-onnx/python/csrc/vad-model.h"
+#include "sherpa-onnx/python/csrc/speaker-engine.h"
 #include "sherpa-onnx/python/csrc/voice-activity-detector.h"
 
 namespace sherpa_onnx {
@@ -42,6 +43,7 @@ PYBIND11_MODULE(_sherpa_onnx, m) {
   PybindOfflineCtcFstDecoderConfig(&m);
   PybindOfflineRecognizer(&m);
 
+  PybindSpeakerEngine(&m);
   PybindVadModelConfig(&m);
   PybindVadModel(&m);
   PybindCircularBuffer(&m);
