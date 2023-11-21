@@ -35,18 +35,11 @@ void SpeakerModel::SetGpuDeviceId(int gpu_id) {
 }
 #endif
 
-SpeakerModel::SpeakerModel(const std::string& model_path) {
+SpeakerModel::SpeakerModel(void *model_data, size_t model_data_length) {
   session_options_.SetGraphOptimizationLevel(
       GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
-  // 1. Load sessions
-  #ifdef _MSC_VER
-  speaker_session_ = std::make_unique<Ort::Session>(
-                     env_, ToWString(model_path).c_str(), session_options_);
-  #else
-  speaker_session_ = std::make_unique<Ort::Session>(
-                     env_, model_path.c_str(), session_options_);
-  #endif
-
+  speaker_session_ = std::make_unique<Ort::Session>(env_, 
+     model_data, model_data_length, session_options_);
   GetInputNames(speaker_session_.get(), &input_names_, &input_names_ptr_);
   GetOutputNames(speaker_session_.get(), &output_names_, &output_names_ptr_);
 }

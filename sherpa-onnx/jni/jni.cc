@@ -27,6 +27,7 @@
 #include "sherpa-onnx/csrc/voice-activity-detector.h"
 #include "sherpa-onnx/csrc/wave-reader.h"
 #include "sherpa-onnx/csrc/wave-writer.h"
+#include "sherpa-onnx/csrc/speaker-engine.h"
 
 #define SHERPA_ONNX_EXTERN_C extern "C"
 
@@ -1190,4 +1191,52 @@ JNIEXPORT jint JNICALL Java_com_k2fsa_sherpa_onnx_OnlineStream_featureDim(
   sherpa_onnx::OnlineStream *s =
       reinterpret_cast<sherpa_onnx::OnlineStream *>(s_ptr);
   return s->FeatureDim();
+}
+
+
+
+SHERPA_ONNX_EXTERN_C
+JNIEXPORT jlong JNICALL
+Java_com_k2fsa_sherpa_onnx_SpeakerEngine_createSpeakerEngine(
+    JNIEnv *env, jobject /*obj*/, jobject asset_manager, jstring filename) {
+
+  const char *p_filename = env->GetStringUTFChars(filename, nullptr);
+
+#if __ANDROID_API__ >= 9
+  AAssetManager *mgr = AAssetManager_fromJava(env, asset_manager);
+  if (!mgr) {
+    SHERPA_ONNX_LOGE("Failed to get asset manager: %p", mgr);
+  }
+#endif
+
+  auto p_recognizer = new sherpa_onnx::SpeakerEngine(
+#if __ANDROID_API__ >= 9
+      mgr,
+#endif
+      p_filename);
+
+  return (jlong)p_recognizer;
+}
+
+SHERPA_ONNX_EXTERN_C
+JNIEXPORT void JNICALL
+Java_com_k2fsa_sherpa_onnx_SpeakerEngine_deleteSpeakerEngine(
+    JNIEnv *env, jobject /*obj*/, jlong ptr) {
+  delete reinterpret_cast<sherpa_onnx::SpeakerEngine *>(ptr);
+}
+
+SHERPA_ONNX_EXTERN_C
+JNIEXPORT jfloatArray JNICALL
+Java_com_k2fsa_sherpa_onnx_SpeakerEngine_embeddingImpl(JNIEnv *env, jobject /*obj*/,
+                                                       jlong ptr, jlong sampling_rate,
+                                                       jfloatArray samples) {
+  auto engine = reinterpret_cast<sherpa_onnx::SpeakerEngine *>(ptr);
+  jfloat *p = env->GetFloatArrayElements(samples, nullptr);
+  jsize n = env->GetArrayLength(samples);
+  std::vector<float> embed;
+  engine->ExtractEmbedding(sampling_rate, p, n, &embed);
+  jfloatArray embedding_arr = env->NewFloatArray(embed.size());
+  env->SetFloatArrayRegion(embedding_arr, 0, embed.size(),
+                           embed.data());
+  return embedding_arr;
 }

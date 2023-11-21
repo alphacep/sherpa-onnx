@@ -32,7 +32,7 @@ class SpeakerModel {
   static void SetGpuDeviceId(int gpu_id = 0);
 #endif
  public:
-  explicit SpeakerModel(const std::string& model_path);
+  explicit SpeakerModel(void *model_data, size_t model_data_length);
 
   void ExtractEmbedding(const std::vector<std::vector<float>>& feats,
                         std::vector<float>* embed);

@@ -22,20 +22,34 @@
 #include "log.h"
 #include "speaker-engine.h"
 #include "speaker-model.h"
+#include "onnx-utils.h"
 
 namespace sherpa_onnx {
+
+
+#if __ANDROID_API__ >= 9
+SpeakerEngine::SpeakerEngine(AAssetManager *mgr, const std::string& model_path) {
+    auto buf = ReadFile(mgr, model_path);
+    Init(buf.data(), buf.size(), 80, 16000, 256);
+}
+#endif
 
 SpeakerEngine::SpeakerEngine(const std::string& model_path,
                              const int feat_dim,
                              const int sample_rate,
                              const int embedding_size) {
+    auto buf = ReadFile(model_path);
+    Init(buf.data(), buf.size(), feat_dim, sample_rate, embedding_size);
+}
+
+void SpeakerEngine::Init(void *model_data, size_t model_data_length,
+                    const int feat_dim,
+                    const int sample_rate,
+                    const int embedding_size) {
   // NOTE(cdliang): default num_threads = 1
   const int kNumGemmThreads = 1;
-  SHERPA_ONNX_LOG(INFO) << "Reading model " << model_path;
   embedding_size_ = embedding_size;
-  SHERPA_ONNX_LOG(INFO) << "Embedding size: " << embedding_size_;
   sample_rate_ = sample_rate;
-  SHERPA_ONNX_LOG(INFO) << "Sample rate: " << sample_rate_;
   feature_config_ = std::make_shared<FeatureExtractorConfig>();
   feature_config_->feature_dim = feat_dim;
   feature_config_->sampling_rate = sample_rate;
@@ -46,7 +60,7 @@ SpeakerEngine::SpeakerEngine(const std::string& model_path,
   // NOTE(cdliang): default gpu_id = 0
   SpeakerModel::SetGpuDeviceId(0);
   #endif
-  model_ = std::make_shared<SpeakerModel>(model_path);
+  model_ = std::make_shared<SpeakerModel>(model_data, model_data_length);
 }
 
 int SpeakerEngine::EmbeddingSize() {

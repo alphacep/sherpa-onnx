@@ -23,6 +23,10 @@
 #include "speaker-model.h"
 #include "features.h"
 
+#if __ANDROID_API__ >= 9
+#include "android/asset_manager.h"
+#include "android/asset_manager_jni.h"
+#endif
 
 namespace sherpa_onnx {
 
@@ -32,6 +36,16 @@ class SpeakerEngine {
                          const int feat_dim,
                          const int sample_rate,
                          const int embedding_size);
+
+#if __ANDROID_API__ >= 9
+  SpeakerEngine(AAssetManager *mgr, const std::string& model_path);
+#endif
+
+  void Init(void *model_data, size_t model_data_length,
+            const int feat_dim,
+            const int sample_rate,
+            const int embedding_size);
+
   // return embedding_size
   int EmbeddingSize();
   // extract fbank
