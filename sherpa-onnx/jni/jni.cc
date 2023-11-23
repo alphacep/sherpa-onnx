@@ -1197,7 +1197,7 @@ JNIEXPORT jint JNICALL Java_com_k2fsa_sherpa_onnx_OnlineStream_featureDim(
 
 SHERPA_ONNX_EXTERN_C
 JNIEXPORT jlong JNICALL
-Java_com_k2fsa_sherpa_onnx_SpeakerEngine_createSpeakerEngine(
+Java_com_k2fsa_sherpa_onnx_SpeakerEngine_new(
     JNIEnv *env, jobject /*obj*/, jobject asset_manager, jstring filename) {
 
   const char *p_filename = env->GetStringUTFChars(filename, nullptr);
@@ -1220,7 +1220,7 @@ Java_com_k2fsa_sherpa_onnx_SpeakerEngine_createSpeakerEngine(
 
 SHERPA_ONNX_EXTERN_C
 JNIEXPORT void JNICALL
-Java_com_k2fsa_sherpa_onnx_SpeakerEngine_deleteSpeakerEngine(
+Java_com_k2fsa_sherpa_onnx_SpeakerEngine_delete(
     JNIEnv *env, jobject /*obj*/, jlong ptr) {
   delete reinterpret_cast<sherpa_onnx::SpeakerEngine *>(ptr);
 }
@@ -1228,7 +1228,7 @@ Java_com_k2fsa_sherpa_onnx_SpeakerEngine_deleteSpeakerEngine(
 SHERPA_ONNX_EXTERN_C
 JNIEXPORT jfloatArray JNICALL
 Java_com_k2fsa_sherpa_onnx_SpeakerEngine_embeddingImpl(JNIEnv *env, jobject /*obj*/,
-                                                       jlong ptr, jlong sampling_rate,
+                                                       jlong ptr, jint sampling_rate,
                                                        jfloatArray samples) {
   auto engine = reinterpret_cast<sherpa_onnx::SpeakerEngine *>(ptr);
   jfloat *p = env->GetFloatArrayElements(samples, nullptr);

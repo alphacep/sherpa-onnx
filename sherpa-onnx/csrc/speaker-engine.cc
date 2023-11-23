@@ -47,7 +47,7 @@ void SpeakerEngine::Init(void *model_data, size_t model_data_length,
                     const int sample_rate,
                     const int embedding_size) {
   // NOTE(cdliang): default num_threads = 1
-  const int kNumGemmThreads = 1;
+  const int kNumGemmThreads = 4;
   embedding_size_ = embedding_size;
   sample_rate_ = sample_rate;
   feature_config_ = std::make_shared<FeatureExtractorConfig>();
