@@ -49,7 +49,7 @@ class SpeakerEngine {
   // return embedding_size
   int EmbeddingSize();
   // extract fbank
-  void ExtractFeature(int32_t sampling_rate, const float *data, int32_t data_size,
+  void ExtractFeature(FeatureExtractor &extractor, int32_t sampling_rate, const float *data, int32_t data_size,
     std::vector<std::vector<float>>& feats);
   // extract embedding
   void ExtractEmbedding(int32_t sampling_rate, const float *data, int32_t data_size,
@@ -63,7 +63,6 @@ class SpeakerEngine {
                  unsigned int feat_dim);
   std::shared_ptr<sherpa_onnx::SpeakerModel> model_ = nullptr;
   std::shared_ptr<FeatureExtractorConfig> feature_config_ = nullptr;
-  std::shared_ptr<FeatureExtractor> feature_extractor_ = nullptr;
   int embedding_size_ = 0;
   int sample_rate_ = 16000;
 };

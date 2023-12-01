@@ -53,8 +53,8 @@ void SpeakerEngine::Init(void *model_data, size_t model_data_length,
   feature_config_ = std::make_shared<FeatureExtractorConfig>();
   feature_config_->feature_dim = feat_dim;
   feature_config_->sampling_rate = sample_rate;
+  feature_config_->normalize_samples = false;
 
-  feature_extractor_ = std::make_shared<FeatureExtractor>(*feature_config_);
   SpeakerModel::InitEngineThreads(kNumGemmThreads);
   #ifdef USE_GPU
   // NOTE(cdliang): default gpu_id = 0
@@ -81,15 +81,14 @@ void SpeakerEngine::ApplyMean(std::vector<std::vector<float>>* feat,
   }
 }
 
-void SpeakerEngine::ExtractFeature(int32_t sampling_rate, const float* data, int32_t data_size,
+void SpeakerEngine::ExtractFeature(FeatureExtractor &extractor, int32_t sampling_rate, const float* data, int32_t data_size,
     std::vector<std::vector<float>>& feats) {
-
   if (data != nullptr) {
-    feature_extractor_->AcceptWaveform(sampling_rate, data, data_size);
-    feature_extractor_->InputFinished();
-    int nframes = feature_extractor_->NumFramesReady();
+    extractor.AcceptWaveform(sampling_rate, data, data_size);
+    extractor.InputFinished();
+    int nframes = extractor.NumFramesReady();
     feats.resize(nframes);
-    std::vector<float> row_feats = feature_extractor_->GetFrames(0, nframes);
+    std::vector<float> row_feats = extractor.GetFrames(0, nframes);
     int feature_dim = feature_config_->feature_dim;
     for (int32_t i = 0; i < nframes; ++i) {
         for (int32_t j = 0; j < feature_dim; ++j) {
@@ -104,8 +103,9 @@ void SpeakerEngine::ExtractFeature(int32_t sampling_rate, const float* data, int
 void SpeakerEngine::ExtractEmbedding(int32_t sampling_rate, const float *data, int32_t data_size,
                                      std::vector<float> *emb) {
 
+  FeatureExtractor extractor(*feature_config_);
   std::vector<std::vector<float>> feats;
-  this->ExtractFeature(sampling_rate, data, data_size, feats);
+  this->ExtractFeature(extractor, sampling_rate, data, data_size, feats);
   int feature_dim = feature_config_->feature_dim;
   this->ApplyMean(&feats, feature_dim);
   model_->ExtractEmbedding(feats, emb);
