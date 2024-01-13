@@ -45,6 +45,7 @@ class FeatureExtractor::Impl {
     opts_.frame_opts.samp_freq = config.sampling_rate;
 
     opts_.mel_opts.num_bins = config.feature_dim;
+    opts_.mel_opts.high_freq = -400;
 
     fbank_ = std::make_unique<knf::OnlineFbank>(opts_);
   }
