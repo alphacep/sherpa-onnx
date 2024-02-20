@@ -30,7 +30,7 @@ namespace sherpa_onnx {
 #if __ANDROID_API__ >= 9
 SpeakerEngine::SpeakerEngine(AAssetManager *mgr, const std::string& model_path) {
     auto buf = ReadFile(mgr, model_path);
-    Init(buf.data(), buf.size(), 80, 16000, 256);
+    Init(buf.data(), buf.size(), 80, 16000, 160);
 }
 #endif
 
