@@ -80,6 +80,10 @@ class SherpaOnnx {
     }
   }
 
+  void CreateStream(const std::string &hotwords) {
+    stream_ = recognizer_.CreateStream(hotwords);
+  }
+
   void Decode() const { recognizer_.DecodeStream(stream_.get()); }
 
  private:
@@ -857,6 +861,15 @@ JNIEXPORT void JNICALL Java_com_k2fsa_sherpa_onnx_SherpaOnnx_reset(
 }
 
 SHERPA_ONNX_EXTERN_C
+JNIEXPORT void JNICALL Java_com_k2fsa_sherpa_onnx_SherpaOnnx_createStream(
+    JNIEnv *env, jobject /*obj*/, jlong ptr, jstring hotwords) {
+  auto model = reinterpret_cast<sherpa_onnx::SherpaOnnx *>(ptr);
+  const char *p_hotwords = env->GetStringUTFChars(hotwords, nullptr);
+  std::string s_hotwords(p_hotwords);
+  model->CreateStream(s_hotwords);
+}
+
+SHERPA_ONNX_EXTERN_C
 JNIEXPORT bool JNICALL Java_com_k2fsa_sherpa_onnx_SherpaOnnx_isReady(
     JNIEnv *env, jobject /*obj*/, jlong ptr) {
   auto model = reinterpret_cast<sherpa_onnx::SherpaOnnx *>(ptr);
@@ -1060,6 +1073,19 @@ Java_com_k2fsa_sherpa_onnx_OnlineRecognizer_createStream(JNIEnv *env,
                                                          jlong ptr) {
   std::unique_ptr<sherpa_onnx::OnlineStream> s =
       reinterpret_cast<sherpa_onnx::OnlineRecognizer *>(ptr)->CreateStream();
+  sherpa_onnx::OnlineStream *p_stream = s.release();
+  return reinterpret_cast<jlong>(p_stream);
+}
+
+SHERPA_ONNX_EXTERN_C
+JNIEXPORT jlong JNICALL
+Java_com_k2fsa_sherpa_onnx_OnlineRecognizer_createStreamHotwords(JNIEnv *env,
+                                                                 jobject /*obj*/,
+                                                                 jlong ptr,
+                                                                 jstring hotwords) {
+  const char *p_hotwords = env->GetStringUTFChars(hotwords, nullptr);
+  std::unique_ptr<sherpa_onnx::OnlineStream> s =
+      reinterpret_cast<sherpa_onnx::OnlineRecognizer *>(ptr)->CreateStream(p_hotwords);
   sherpa_onnx::OnlineStream *p_stream = s.release();
   return reinterpret_cast<jlong>(p_stream);
 }
