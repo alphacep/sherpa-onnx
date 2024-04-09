@@ -97,10 +97,13 @@ set(sources
 list(APPEND sources
   lexicon.cc
   offline-tts-impl.cc
-  offline-tts-model-config.cc
-  offline-tts-vits-model-config.cc
+  offline-tts-character-frontend.cc
   offline-tts-vits-model.cc
+  offline-tts-vits-model-config.cc
+  sherpa-onnx-offline-tts.cc
+  offline-tts-model-config.cc
   offline-tts.cc
+  wave-writer.cc
   wave-writer.cc
 )
 

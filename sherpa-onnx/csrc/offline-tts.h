@@ -5,6 +5,7 @@
 #define SHERPA_ONNX_CSRC_OFFLINE_TTS_H_
 
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -28,10 +29,17 @@ struct OfflineTtsConfig {
   // If there are multiple rules, they are applied from left to right.
   std::string rule_fsts;
 
+  // Maximum number of sentences that we process at a time.
+  // This is to avoid OOM for very long input text.
+  // If you set it to -1, then we process all sentences in a single batch.
+  int32_t max_num_sentences = 2;
+
   OfflineTtsConfig() = default;
   OfflineTtsConfig(const OfflineTtsModelConfig &model,
-                   const std::string &rule_fsts)
-      : model(model), rule_fsts(rule_fsts) {}
+                   const std::string &rule_fsts, int32_t max_num_sentences)
+      : model(model),
+        rule_fsts(rule_fsts),
+        max_num_sentences(max_num_sentences) {}
 
   void Register(ParseOptions *po);
   bool Validate() const;
@@ -45,6 +53,9 @@ struct GeneratedAudio {
 };
 
 class OfflineTtsImpl;
+
+using GeneratedAudioCallback =
+    std::function<void(const float * /*samples*/, int32_t /*n*/)>;
 
 class OfflineTts {
  public:
@@ -60,8 +71,24 @@ class OfflineTts {
   //            trained using the VCTK dataset. It is not used for
   //            single-speaker models, e.g., models trained using the ljspeech
   //            dataset.
+  // @param speed The speed for the generated speech. E.g., 2 means 2x faster.
+  // @param callback If not NULL, it is called whenever config.max_num_sentences
+  //                 sentences have been processed. Note that the passed
+  //                 pointer `samples` for the callback might be invalidated
+  //                 after the callback is returned, so the caller should not
+  //                 keep a reference to it. The caller can copy the data if
+  //                 he/she wants to access the samples after the callback
+  //                 returns. The callback is called in the current thread.
   GeneratedAudio Generate(const std::string &text, int64_t sid = 0,
-                          float speed = 1.0) const;
+                          float speed = 1.0,
+                          GeneratedAudioCallback callback = nullptr) const;
+
+  // Return the sample rate of the generated audio
+  int32_t SampleRate() const;
+
+  // Number of supported speakers.
+  // If it supports only a single speaker, then it return 0 or 1.
+  int32_t NumSpeakers() const;
 
  private:
   std::unique_ptr<OfflineTtsImpl> impl_;

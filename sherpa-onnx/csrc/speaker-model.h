@@ -27,7 +27,7 @@ namespace sherpa_onnx {
 
 class SpeakerModel {
  public:
-  static void InitEngineThreads(int num_threads = 1);
+  static void InitEngineThreads(int num_threads = 4);
 #ifdef USE_GPU
   static void SetGpuDeviceId(int gpu_id = 0);
 #endif

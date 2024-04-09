@@ -16,6 +16,14 @@
     fprintf(stderr, "\n");                                               \
     __android_log_print(ANDROID_LOG_WARN, "sherpa-onnx", ##__VA_ARGS__); \
   } while (0)
+#elif SHERPA_ONNX_ENABLE_WASM
+#define SHERPA_ONNX_LOGE(...)                        \
+  do {                                               \
+    fprintf(stdout, "%s:%s:%d ", __FILE__, __func__, \
+            static_cast<int>(__LINE__));             \
+    fprintf(stdout, ##__VA_ARGS__);                  \
+    fprintf(stdout, "\n");                           \
+  } while (0)
 #else
 #define SHERPA_ONNX_LOGE(...)                        \
   do {                                               \
@@ -41,6 +49,21 @@
       SHERPA_ONNX_LOGE("Invalid value %d for %s", dst, src_key);        \
       exit(-1);                                                         \
     }                                                                   \
+  } while (0)
+
+#define SHERPA_ONNX_READ_META_DATA_WITH_DEFAULT(dst, src_key, default_value) \
+  do {                                                                       \
+    auto value =                                                             \
+        meta_data.LookupCustomMetadataMapAllocated(src_key, allocator);      \
+    if (!value) {                                                            \
+      dst = default_value;                                                   \
+    } else {                                                                 \
+      dst = atoi(value.get());                                               \
+      if (dst < 0) {                                                         \
+        SHERPA_ONNX_LOGE("Invalid value %d for %s", dst, src_key);           \
+        exit(-1);                                                            \
+      }                                                                      \
+    }                                                                        \
   } while (0)
 
 // read a vector of integers
@@ -109,6 +132,22 @@
     if (dst.empty()) {                                                  \
       SHERPA_ONNX_LOGE("Invalid value for %s\n", src_key);              \
       exit(-1);                                                         \
+    }                                                                   \
+  } while (0)
+
+#define SHERPA_ONNX_READ_META_DATA_STR_WITH_DEFAULT(dst, src_key,       \
+                                                    default_value)      \
+  do {                                                                  \
+    auto value =                                                        \
+        meta_data.LookupCustomMetadataMapAllocated(src_key, allocator); \
+    if (!value) {                                                       \
+      dst = default_value;                                              \
+    } else {                                                            \
+      dst = value.get();                                                \
+      if (dst.empty()) {                                                \
+        SHERPA_ONNX_LOGE("Invalid value for %s\n", src_key);            \
+        exit(-1);                                                       \
+      }                                                                 \
     }                                                                   \
   } while (0)
 
