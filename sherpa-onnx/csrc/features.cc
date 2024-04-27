@@ -40,7 +40,7 @@ std::string FeatureExtractorConfig::ToString() const {
 class FeatureExtractor::Impl {
  public:
   explicit Impl(const FeatureExtractorConfig &config) : config_(config) {
-    opts_.frame_opts.dither = 1;
+    opts_.frame_opts.dither = 0.00003f;
     opts_.frame_opts.snip_edges = false;
     opts_.frame_opts.samp_freq = config.sampling_rate;
 

@@ -78,7 +78,7 @@ class OfflineStream::Impl {
   explicit Impl(const OfflineFeatureExtractorConfig &config,
                 ContextGraphPtr context_graph)
       : config_(config), context_graph_(context_graph) {
-    opts_.frame_opts.dither = 1;
+    opts_.frame_opts.dither = 0.00003f;
     opts_.frame_opts.snip_edges = false;
     opts_.frame_opts.samp_freq = config.sampling_rate;
     opts_.mel_opts.num_bins = config.feature_dim;
