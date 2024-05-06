@@ -136,6 +136,8 @@ std::vector<std::vector<int64_t>> Lexicon::ConvertTextToTokenIds(
       return ConvertTextToTokenIdsChinese(text);
     case Language::kNotChinese:
       return ConvertTextToTokenIdsNotChinese(text);
+    case Language::kRussian:
+      return ConvertTextToTokenIdsRussian(text);
     default:
       SHERPA_ONNX_LOGE("Unknown language: %d", static_cast<int32_t>(language_));
       exit(-1);
@@ -184,9 +186,9 @@ std::vector<std::vector<int64_t>> Lexicon::ConvertTextToTokenIdsChinese(
       fprintf(stderr, " %02x", c);
     }
     fprintf(stderr, "\n");
-    fprintf(stderr, "After splitting to words:");
+    fprintf(stderr, "After splitting to words:\n");
     for (const auto &w : words) {
-      fprintf(stderr, " %s", w.c_str());
+      fprintf(stderr, "%s\n", w.c_str());
     }
     fprintf(stderr, "\n");
   }
@@ -327,6 +329,71 @@ std::vector<std::vector<int64_t>> Lexicon::ConvertTextToTokenIdsNotChinese(
   return ans;
 }
 
+std::vector<std::vector<int64_t>> Lexicon::ConvertTextToTokenIdsRussian(
+    const std::string &_text) const {
+  std::string text(_text);
+  ToLowerCase(&text);
+
+  std::vector<std::string> words = SplitUtf8(text);
+
+  if (debug_) {
+    fprintf(stderr, "Input text (lowercase) in string: %s\n", text.c_str());
+    fprintf(stderr, "Input text in bytes:");
+    for (uint8_t c : text) {
+      fprintf(stderr, " %02x", c);
+    }
+    fprintf(stderr, "\n");
+    fprintf(stderr, "After splitting to words:\n");
+    for (const auto &w : words) {
+      fprintf(stderr, "%s\n", w.c_str());
+    }
+    fprintf(stderr, "\n");
+  }
+
+  int32_t blank = token2id_.at(" ");
+
+  std::vector<std::vector<int64_t>> ans;
+  std::vector<int64_t> this_sentence;
+
+  for (const auto &w : words) {
+    if (w == "." || w == ";" || w == "!" || w == "?" || w == "-" || w == ":" ||
+        // not sentence break
+        w == ",") {
+      if (punctuations_.count(w)) {
+        this_sentence.push_back(token2id_.at(w));
+      }
+
+      if (w != ",") {
+        this_sentence.push_back(blank);
+        ans.push_back(std::move(this_sentence));
+      }
+
+      continue;
+    }
+
+    if (!word2ids_.count(w)) {
+      SHERPA_ONNX_LOGE("OOV %s. Ignore it!", w.c_str());
+      continue;
+    }
+
+    const auto &token_ids = word2ids_.at(w);
+    this_sentence.insert(this_sentence.end(), token_ids.begin(),
+                         token_ids.end());
+    this_sentence.push_back(blank);
+  }
+
+  if (!this_sentence.empty()) {
+    // remove the last blank
+    this_sentence.resize(this_sentence.size() - 1);
+  }
+
+  if (!this_sentence.empty()) {
+    ans.push_back(std::move(this_sentence));
+  }
+
+  return ans;
+}
+
 void Lexicon::InitTokens(std::istream &is) { token2id_ = ReadTokens(is); }
 
 void Lexicon::InitLanguage(const std::string &_lang) {
@@ -334,6 +401,8 @@ void Lexicon::InitLanguage(const std::string &_lang) {
   ToLowerCase(&lang);
   if (lang == "chinese") {
     language_ = Language::kChinese;
+  } else if (lang == "russian") {
+    language_ = Language::kRussian;
   } else if (!lang.empty()) {
     language_ = Language::kNotChinese;
   } else {

@@ -305,8 +305,7 @@ static std::vector<std::string> MergeCharactersIntoWords(
 
   while (i < n) {
     const auto &w = words[i];
-    if (w.size() >= 3 || (w.size() == 2 && !IsSpecial(w)) ||
-        (w.size() == 1 && (IsPunct(w[0]) || std::isspace(w[0])))) {
+    if (IsPunct(w[0]) || std::isspace(w[0])) {
       if (prev != -1) {
         std::string t;
         for (; prev < i; ++prev) {
@@ -315,24 +314,14 @@ static std::vector<std::string> MergeCharactersIntoWords(
         prev = -1;
         ans.push_back(std::move(t));
       }
-
       if (!std::isspace(w[0])) {
         ans.push_back(w);
       }
-      ++i;
-      continue;
-    }
-
-    // e.g., öffnen
-    if (w.size() == 1 || (w.size() == 2 && IsSpecial(w))) {
+    } else {
       if (prev == -1) {
         prev = i;
       }
-      ++i;
-      continue;
     }
-
-    SHERPA_ONNX_LOGE("Ignore %s", w.c_str());
     ++i;
   }
 

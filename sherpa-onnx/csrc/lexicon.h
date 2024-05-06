@@ -47,6 +47,9 @@ class Lexicon : public OfflineTtsFrontend {
   std::vector<std::vector<int64_t>> ConvertTextToTokenIdsChinese(
       const std::string &text) const;
 
+  std::vector<std::vector<int64_t>> ConvertTextToTokenIdsRussian(
+      const std::string &text) const;
+
   void InitLanguage(const std::string &lang);
   void InitTokens(std::istream &is);
   void InitLexicon(std::istream &is);
@@ -56,6 +59,7 @@ class Lexicon : public OfflineTtsFrontend {
   enum class Language {
     kNotChinese,
     kChinese,
+    kRussian,
     kUnknown,
   };
 
