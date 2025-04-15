@@ -19,36 +19,11 @@ if(NOT SHERPA_ONNX_ENABLE_GPU)
 endif()
 
 
-set(onnxruntime_URL  "https://github.com/csukuangfj/onnxruntime-libs/releases/download/v1.17.1/onnxruntime-linux-x64-gpu-1.17.1-patched.zip")
-set(onnxruntime_URL2 "https://hf-mirror.com/csukuangfj/onnxruntime-libs/resolve/main/onnxruntime-linux-x64-gpu-1.17.1-patched.zip")
-set(onnxruntime_HASH "SHA256=1261de176e8d9d4d2019f8fa8c732c6d11494f3c6e73168ab6d2cc0903f22551")
-
-# If you don't have access to the Internet,
-# please download onnxruntime to one of the following locations.
-# You can add more if you want.
-set(possible_file_locations
-  $ENV{HOME}/Downloads/onnxruntime-linux-x64-gpu-1.17.1-patched.zip
-  ${CMAKE_SOURCE_DIR}/onnxruntime-linux-x64-gpu-1.17.1-patched.zip
-  ${CMAKE_BINARY_DIR}/onnxruntime-linux-x64-gpu-1.17.1-patched.zip
-  /tmp/onnxruntime-linux-x64-gpu-1.17.1-patched.zip
-  /star-fj/fangjun/download/github/onnxruntime-linux-x64-gpu-1.17.1-patched.zip
-)
-
-foreach(f IN LISTS possible_file_locations)
-  if(EXISTS ${f})
-    set(onnxruntime_URL  "${f}")
-    file(TO_CMAKE_PATH "${onnxruntime_URL}" onnxruntime_URL)
-    message(STATUS "Found local downloaded onnxruntime: ${onnxruntime_URL}")
-    set(onnxruntime_URL2)
-    break()
-  endif()
-endforeach()
+set(onnxruntime_URL  "https://github.com/microsoft/onnxruntime/releases/download/v1.20.1/onnxruntime-linux-x64-gpu-1.20.1.tgz")
 
 FetchContent_Declare(onnxruntime
   URL
     ${onnxruntime_URL}
-    ${onnxruntime_URL2}
-  URL_HASH          ${onnxruntime_HASH}
 )
 
 FetchContent_GetProperties(onnxruntime)
