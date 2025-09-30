@@ -60,7 +60,7 @@ class OnlineZipformer2TransducerModel : public OnlineTransducerModel {
   void InitJoiner(void *model_data, size_t model_data_length);
 
  private:
-  Ort::Env env_;
+  Ort::Env *env_;
   Ort::SessionOptions encoder_sess_opts_;
   Ort::SessionOptions decoder_sess_opts_;
   Ort::SessionOptions joiner_sess_opts_;

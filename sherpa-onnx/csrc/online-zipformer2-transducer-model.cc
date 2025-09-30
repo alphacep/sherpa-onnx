@@ -37,12 +37,17 @@ namespace sherpa_onnx {
 
 OnlineZipformer2TransducerModel::OnlineZipformer2TransducerModel(
     const OnlineModelConfig &config)
-    : env_(ORT_LOGGING_LEVEL_ERROR),
-      encoder_sess_opts_(GetSessionOptions(config)),
+    : encoder_sess_opts_(GetSessionOptions(config)),
       decoder_sess_opts_(GetSessionOptions(config, "decoder")),
       joiner_sess_opts_(GetSessionOptions(config, "joiner")),
       config_(config),
       allocator_{} {
+
+  Ort::ThreadingOptions tp_options;
+  tp_options.SetGlobalIntraOpNumThreads(2);
+  tp_options.SetGlobalInterOpNumThreads(1);
+  env_ = new Ort::Env(tp_options, ORT_LOGGING_LEVEL_VERBOSE, "default");
+
   {
     auto buf = ReadFile(config.transducer.encoder);
     InitEncoder(buf.data(), buf.size());
@@ -62,12 +67,17 @@ OnlineZipformer2TransducerModel::OnlineZipformer2TransducerModel(
 template <typename Manager>
 OnlineZipformer2TransducerModel::OnlineZipformer2TransducerModel(
     Manager *mgr, const OnlineModelConfig &config)
-    : env_(ORT_LOGGING_LEVEL_ERROR),
-      config_(config),
+    : config_(config),
       encoder_sess_opts_(GetSessionOptions(config)),
       decoder_sess_opts_(GetSessionOptions(config)),
       joiner_sess_opts_(GetSessionOptions(config)),
       allocator_{} {
+
+  Ort::ThreadingOptions tp_options;
+  tp_options.SetGlobalIntraOpNumThreads(2);
+  tp_options.SetGlobalInterOpNumThreads(1);
+  env_ = new Ort::Env(tp_options, ORT_LOGGING_LEVEL_VERBOSE, "default");
+
   {
     auto buf = ReadFile(mgr, config.transducer.encoder);
     InitEncoder(buf.data(), buf.size());
@@ -87,7 +97,7 @@ OnlineZipformer2TransducerModel::OnlineZipformer2TransducerModel(
 void OnlineZipformer2TransducerModel::InitEncoder(void *model_data,
                                                   size_t model_data_length) {
   encoder_sess_ = std::make_unique<Ort::Session>(
-      env_, model_data, model_data_length, encoder_sess_opts_);
+      *env_, model_data, model_data_length, encoder_sess_opts_);
 
   GetInputNames(encoder_sess_.get(), &encoder_input_names_,
                 &encoder_input_names_ptr_);
@@ -160,7 +170,7 @@ void OnlineZipformer2TransducerModel::InitEncoder(void *model_data,
 void OnlineZipformer2TransducerModel::InitDecoder(void *model_data,
                                                   size_t model_data_length) {
   decoder_sess_ = std::make_unique<Ort::Session>(
-      env_, model_data, model_data_length, decoder_sess_opts_);
+      *env_, model_data, model_data_length, decoder_sess_opts_);
 
   GetInputNames(decoder_sess_.get(), &decoder_input_names_,
                 &decoder_input_names_ptr_);
@@ -185,7 +195,7 @@ void OnlineZipformer2TransducerModel::InitDecoder(void *model_data,
 void OnlineZipformer2TransducerModel::InitJoiner(void *model_data,
                                                  size_t model_data_length) {
   joiner_sess_ = std::make_unique<Ort::Session>(
-      env_, model_data, model_data_length, joiner_sess_opts_);
+      *env_, model_data, model_data_length, joiner_sess_opts_);
 
   GetInputNames(joiner_sess_.get(), &joiner_input_names_,
                 &joiner_input_names_ptr_);

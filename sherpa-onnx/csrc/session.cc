@@ -52,9 +52,14 @@ Ort::SessionOptions GetSessionOptionsImpl(
   }
 
   // Other possible options
-  // sess_opts.SetGraphOptimizationLevel(ORT_ENABLE_EXTENDED);
-  // sess_opts.SetLogSeverityLevel(ORT_LOGGING_LEVEL_VERBOSE);
+  // sess_opts.SetGraphOptimizationLevel(ORT_ENABLE_ALL);
+  // sess_opts.SetLogSeverityLevel(ORT_LOGGING_LEVEL_ERROR);
   // sess_opts.EnableProfiling("profile");
+
+  sess_opts.SetGraphOptimizationLevel(ORT_DISABLE_ALL);
+  sess_opts.SetLogSeverityLevel(ORT_LOGGING_LEVEL_VERBOSE);
+  sess_opts.DisableMemPattern();
+  sess_opts.DisablePerSessionThreads();
 
   switch (p) {
     case Provider::kCPU:

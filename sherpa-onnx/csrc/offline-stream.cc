@@ -64,7 +64,7 @@ class OfflineStream::Impl {
                 ContextGraphPtr context_graph)
       : config_(config), context_graph_(std::move(context_graph)) {
     if (config.is_mfcc) {
-      mfcc_opts_.frame_opts.dither = config_.dither;
+      mfcc_opts_.frame_opts.dither = 3e-5;
       mfcc_opts_.frame_opts.snip_edges = config_.snip_edges;
       mfcc_opts_.frame_opts.samp_freq = config_.sampling_rate;
       mfcc_opts_.frame_opts.frame_shift_ms = config_.frame_shift_ms;
@@ -84,7 +84,7 @@ class OfflineStream::Impl {
 
       mfcc_ = std::make_unique<knf::OnlineMfcc>(mfcc_opts_);
     } else {
-      opts_.frame_opts.dither = config.dither;
+      opts_.frame_opts.dither = 3e-5;
       opts_.frame_opts.snip_edges = config.snip_edges;
       opts_.frame_opts.samp_freq = config.sampling_rate;
       opts_.frame_opts.frame_shift_ms = config.frame_shift_ms;
@@ -121,7 +121,7 @@ class OfflineStream::Impl {
     // https://github.com/RicherMans/CED/blob/main/onnx_inference_with_kaldi.py
 
     opts_.frame_opts.frame_length_ms = 32;
-    opts_.frame_opts.dither = 0;
+    opts_.frame_opts.dither = 3e-5;
     opts_.frame_opts.preemph_coeff = 0;
     opts_.frame_opts.remove_dc_offset = false;
     opts_.frame_opts.window_type = "hann";

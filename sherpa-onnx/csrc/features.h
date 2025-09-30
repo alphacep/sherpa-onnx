@@ -43,7 +43,7 @@ struct FeatureExtractorConfig {
   // In k2, audio samples are in range [-1..+1], in kaldi the range was
   // [-32k..+32k], so the value 0.00003 is equivalent to kaldi default 1.0
   //
-  float dither = 0.0f;  // dithering disabled by default
+  float dither = 3e-5f;  // dithering disabled by default
 
   // Set internally by some models, e.g., paraformer sets it to false.
   // This parameter is not exposed to users from the commandline

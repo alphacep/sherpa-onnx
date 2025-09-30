@@ -284,7 +284,7 @@ class FeatureExtractor::Impl {
   }
 
   void InitFbank() {
-    opts_.frame_opts.dither = config_.dither;
+    opts_.frame_opts.dither = 3e-5;
     opts_.frame_opts.snip_edges = config_.snip_edges;
     opts_.frame_opts.samp_freq = config_.sampling_rate;
     opts_.frame_opts.frame_shift_ms = config_.frame_shift_ms;
@@ -305,7 +305,7 @@ class FeatureExtractor::Impl {
   }
 
   void InitMfcc() {
-    mfcc_opts_.frame_opts.dither = config_.dither;
+    mfcc_opts_.frame_opts.dither = 3e-5;
     mfcc_opts_.frame_opts.snip_edges = config_.snip_edges;
     mfcc_opts_.frame_opts.samp_freq = config_.sampling_rate;
     mfcc_opts_.frame_opts.frame_shift_ms = config_.frame_shift_ms;
